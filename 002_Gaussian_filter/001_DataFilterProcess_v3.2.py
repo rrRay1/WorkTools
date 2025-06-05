@@ -404,9 +404,9 @@ if __name__ == "__main__":
         # 创建一个模拟的参数对象
         class DefaultArgs:
             def __init__(self):
-                self.input_file = '001_max100dC.h5'
+                self.input_file = '008_SS21_SR_8A_13V_max126C.h5'
                 self.output_file = None
-                self.dataset_path = 'DAQ/TufADC/Data/CoilTemp'
+                self.dataset_path = 'DAQ/TufADC/Data/ADC1'
                 self.scaling_factor = 22.9
                 self.scaling_offset = 246
                 self.unit = 'degreeCelsius'
