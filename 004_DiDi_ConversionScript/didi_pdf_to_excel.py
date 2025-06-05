@@ -99,8 +99,8 @@ def process_data(rows):
             processed_data.append(processed_row)
         
         except Exception as e:
-            print("处理行时出错: {}".format(row))
-            print("错误信息: {}".format(str(e)))
+            print("Error processing row: {}".format(row))
+            print("Error message: {}".format(str(e)))
             continue
     
     return processed_data
@@ -136,7 +136,7 @@ def convert_to_sortable_date(date_str, time_str):
 def save_to_excel(data, output_file):
     """将处理后的数据保存到Excel文件"""
     if not data:
-        print("没有数据可保存")
+        print("No data to save.")
         return False
     
     # 创建DataFrame
@@ -209,7 +209,7 @@ def save_to_excel(data, output_file):
     # 保存Excel文件
     writer.close()
     
-    print("数据已保存到 {}".format(output_file))
+    print("Data saved to {}".format(output_file))
     return True
 
 def main():
@@ -217,14 +217,14 @@ def main():
     pdf_files = glob.glob("*.pdf")
     
     if not pdf_files:
-        print("当前目录下没有找到PDF文件")
+        print("No PDF files found in the current directory.")
         return
     
     all_data = []
     
     # 处理每个PDF文件
     for pdf_file in pdf_files:
-        print("处理文件: {}".format(pdf_file))
+        print("Processing file: {}".format(pdf_file))
         rows = extract_table_from_pdf(pdf_file)
         data = process_data(rows)
         all_data.extend(data)
