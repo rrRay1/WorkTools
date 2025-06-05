@@ -48,6 +48,9 @@ def process_data(rows):
         try:
             # 提取日期和时间
             date_time = row[2]  # 上车时间列
+            # 如果包含换行符，则删除所有换行符
+            if isinstance(date_time, str) and '\n' in date_time:
+                date_time = date_time.replace('\n', '')
             if date_time and isinstance(date_time, str):
                 # 尝试解析日期时间格式 (05-06 20:40 周二)
                 match = re.search(r'(\d{2}-\d{2})\s*(\d{2}:\d{2})', date_time)
