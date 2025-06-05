@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-HDF5信号数据比较与可视化工具
-用于从HDF5文件中提取信号数据，并根据配置文件进行可视化比较
-"""
+
+# Author: Rui Ren
+# Copyright (c) 2025 CONTINENTAL AUTOMOTIVE. All rights reserved.
+# Description: HDF5 signal data comparison and visualization tool. Extracts signal data from HDF5 files and visualizes comparisons based on configuration files.
+# Version: 1.0
+# Date: 2025-05-31
+
 import pandas as pd
 import h5py
 import numpy as np

@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+
+# Author: Rui Ren
+# Copyright (c) 2025 CONTINENTAL AUTOMOTIVE. All rights reserved.
+# Description: Data filtering and processing script for Gaussian and sliding window filters on HDF5 files.
+# Version: 1.0
+# Date: 2025-05-31
+
 """
 高斯滤波数据处理工具
 

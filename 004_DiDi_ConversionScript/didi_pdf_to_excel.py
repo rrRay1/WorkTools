@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Author: Rui Ren
+# Copyright (c) 2025 CONTINENTAL AUTOMOTIVE. All rights reserved.
+# Description: Convert DiDi PDF trip invoices to Excel summary with statistics.
+# Version: 1.0
+# Date: 2025-06-05
+
 import os
 import re
 import glob
@@ -237,4 +243,4 @@ def main():
     save_to_excel(all_data, output_file)
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -1,3 +1,9 @@
+# Author: Rui Ren
+# Copyright (c) 2025 CONTINENTAL AUTOMOTIVE. All rights reserved.
+# Description: Merge all PDF files in the current directory into a single PDF, sorted by filename.
+# Version: 1.0
+# Date: 2025-06-05
+
 import os
 from PyPDF2 import PdfMerger
 

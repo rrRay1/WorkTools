@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+
+# Author: Rui Ren
+# Copyright (c) 2025 CONTINENTAL AUTOMOTIVE. All rights reserved.
+# Description: Data processing script for force peak finding and analysis in HDF5 files.
+# Version: 1.0
+# Date: 2025-05-31
+
 """
 
 此脚本用于从h5文件中提取力值数据，检测峰值，并生成统计图表。
@@ -271,4 +279,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
