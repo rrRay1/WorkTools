@@ -42,7 +42,7 @@ def read_h5_dataset(file_path, dataset_path):
     try:
         with h5py.File(file_path, 'r') as file:
             if dataset_path not in file:
-                raise KeyError(f"数据集路径 '{dataset_path}' 在文件中不存在")
+                raise KeyError(f"Dataset path '{dataset_path}' does not exist in the file")
             
             dataset = file[dataset_path]
             data = dataset[:]
@@ -68,24 +68,20 @@ def extract_dataset_attributes(attrs, args):
     """
     params = {}
     
-    # 提取缩放因子，优先使用数据集属性
+    # Extract scaling factor, prefer dataset attribute
     params['scaling_factor'] = attrs.get('scalingFactor', args.scaling_factor)
     logger.info(f"Using scaling factor: {params['scaling_factor']} (from {'dataset attributes' if 'scalingFactor' in attrs else 'command line arguments'})")
-    
-    # 提取偏移量，优先使用数据集属性
+    # Extract scaling offset, prefer dataset attribute
     params['scaling_offset'] = attrs.get('scalingOffset', args.scaling_offset)
     logger.info(f"Using scaling offset: {params['scaling_offset']} (from {'dataset attributes' if 'scalingOffset' in attrs else 'command line arguments'})")
-    
-    # 提取单位，优先使用数据集属性
+    # Extract unit, prefer dataset attribute
     params['unit'] = attrs.get('unit', args.unit)
     logger.info(f"Using unit: {params['unit']} (from {'dataset attributes' if 'unit' in attrs else 'command line arguments'})")
-    
-    # 提取别名，用于标题，优先使用数据集属性
+    # Extract alias for title, prefer dataset attribute
     default_alias = os.path.basename(args.input_file).split('.')[0]
     params['alias'] = attrs.get('alias', default_alias)
     logger.info(f"Using alias: {params['alias']} (from {'dataset attributes' if 'alias' in attrs else 'filename'})")
-    
-    # 直接使用命令行参数中的颜色设置
+    # Use color settings from command line arguments
     params['original_color'] = args.original_color
     params['filter_color'] = args.filter_color
     logger.info(f"Using original color: {params['original_color']} (from command line arguments)")
@@ -151,7 +147,7 @@ def convert_color_value(color_value):
         return (r/255.0, g/255.0, b/255.0)
     
     # 如果是其他类型，记录警告并返回默认颜色
-    logger.warning(f"未识别的颜色值类型: {type(color_value)}，使用默认颜色'grey'")
+    logger.warning(f"Unrecognized color value type: {type(color_value)}, using default color 'grey'")
     return 'grey'
 
 
@@ -377,25 +373,21 @@ def parse_arguments():
     返回:
         argparse.Namespace: 解析后的参数
     """
-    parser = argparse.ArgumentParser(description='H5文件数据高斯滤波处理工具')
+    parser = argparse.ArgumentParser(description='H5 file data Gaussian filter processing tool')
     
-    parser.add_argument('input_file', help='输入H5文件路径')
-    parser.add_argument('--output-file', '-o', help='输出H5文件路径')
-    parser.add_argument('--dataset-path', '-d', default='DAQ/TufADC/Data/CoilTemp', help='数据集路径')
-    
-    # 这些参数现在是备用的，只有在数据集属性中找不到相应值时才会使用
-    parser.add_argument('--scaling-factor', '-sf', type=float, default=1.0, help='数据缩放因子(备用，优先使用数据集属性scalingFactor)')
-    parser.add_argument('--scaling-offset', '-so', type=float, default=0.0, help='数据偏移量(备用，优先使用数据集属性scalingOffset)')
-    parser.add_argument('--unit', '-u', default='', help='数据单位(备用，优先使用数据集属性unit)')
-    
-    # 这些参数仍然是必需的或有固定默认值的
-    parser.add_argument('--sample-rate', '-sr', type=float, default=0.001, help='采样率（毫秒）')
-    parser.add_argument('--gaussian-sigma', '-gs', type=float, default=5, help='高斯滤波器的标准差')
-    parser.add_argument('--original-color', default='grey', help='原始数据线条颜色(备用，优先使用数据集属性color)')
-    parser.add_argument('--filter-color', default='green', help='滤波后数据线条颜色')
-    parser.add_argument('--no-show-plots', action='store_true', help='不显示图表')
-    parser.add_argument('--save-plots', action='store_true', help='保存图表')
-    parser.add_argument('--plots-dir', help='保存图表的目录')
+    parser.add_argument('input_file', help='Input H5 file path')
+    parser.add_argument('--output-file', '-o', help='Output H5 file path')
+    parser.add_argument('--dataset-path', '-d', default='DAQ/TufADC/Data/CoilTemp', help='Dataset path')
+    parser.add_argument('--scaling-factor', '-sf', type=float, default=1.0, help='Data scaling factor (fallback, prefer dataset attribute scalingFactor)')
+    parser.add_argument('--scaling-offset', '-so', type=float, default=0.0, help='Data offset (fallback, prefer dataset attribute scalingOffset)')
+    parser.add_argument('--unit', '-u', default='', help='Data unit (fallback, prefer dataset attribute unit)')
+    parser.add_argument('--sample-rate', '-sr', type=float, default=0.001, help='Sample rate (ms)')
+    parser.add_argument('--gaussian-sigma', '-gs', type=float, default=5, help='Standard deviation of Gaussian filter')
+    parser.add_argument('--original-color', default='grey', help='Original data line color (fallback, prefer dataset attribute color)')
+    parser.add_argument('--filter-color', default='green', help='Filtered data line color')
+    parser.add_argument('--no-show-plots', action='store_true', help='Do not show plots')
+    parser.add_argument('--save-plots', action='store_true', help='Save plots')
+    parser.add_argument('--plots-dir', help='Directory to save plots')
     
     return parser.parse_args()
 

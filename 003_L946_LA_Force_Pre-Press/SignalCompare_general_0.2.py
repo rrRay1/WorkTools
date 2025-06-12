@@ -17,29 +17,29 @@ import glob
 import logging
 import sys
 
-# 配置日志
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 设置matplotlib字体
+# Set matplotlib font
 rcParams['font.family'] = 'sans-serif'
 
 def load_config(config_file):
     """
-    加载Excel配置文件
+    Load Excel configuration file
     
-    参数:
-        config_file (str): 配置文件路径
+    Args:
+        config_file (str): Path to the configuration file
         
-    返回:
-        dict: 配置参数字典
+    Returns:
+        dict: Dictionary of configuration parameters
     """
     try:
         df_config = pd.read_excel(config_file, sheet_name='config', header=None)
-        logger.info(f"成功加载配置信息")
+        logger.info("Configuration loaded successfully")
         return {row[0]: row[1] for _, row in df_config.iterrows()}
     except Exception as e:
-        logger.error(f"加载配置文件失败: {str(e)}")
+        logger.error(f"Failed to load configuration file: {str(e)}")
         raise
 
 def get_h5_units(h5_obj, path):
@@ -166,80 +166,80 @@ def process_h5_data(config_file):
     """
     主处理函数，根据配置文件处理H5数据并生成可视化图表
     
-    参数:
-        config_file (str): 配置文件路径
+    Args:
+        config_file (str): Path to the configuration file
     """
     try:
-        # 加载配置
+        # Load configuration
         config = load_config(config_file)
         position_mode = config.get('position_base_enable', 0) == 1
         absolute_mode = config.get('x-axis_absolute_values_enable', 0) == 1
         
-        # 初始化画布
+        # Initialize canvas
         fig, main_ax = plt.subplots(figsize=(18, 10))
         main_ax.set_title(config.get('plot_title', 'Data Visualization'))
         
-        # 坐标轴管理系统
+        # Axis management system
         y_axes = {}  # {ylabel: ax}
         axis_offset = 1.0
         
-        # 读取Excel文件，获取所有Sheet名称
+        # Read Excel file, get all sheet names
         data_sheets = pd.ExcelFile(config_file).sheet_names
         
         for sheet in data_sheets:
             if sheet == 'config':
                 continue
                 
-            logger.info(f"处理 {sheet}...")
+            logger.info(f"Processing {sheet}...")
             df = pd.read_excel(config_file, sheet_name=sheet, header=0)
             
-            # 解析文件头
+            # Parse file header
             h5_file_name = df.at[0, 'input_file_name']
             position_path = df.iloc[0]['position_path']
             timestamp_path = df.iloc[0]['timestamp_path']
             
             try:
                 with h5py.File(h5_file_name, 'r') as h5_file:
-                    # 获取时间索引数组
+                    # Get timestamp index array
                     timestamp_array = h5_file[timestamp_path][:]
                     
-                    # 处理每个数据条目
+                    # Process each data entry
                     for idx, row in df.iterrows():
                         if idx == 0 or pd.isna(row['input_data_path']):
                             continue
                         
                         data_path = row['input_data_path']
                         
-                        # 获取时间索引
+                        # Get time index
                         start_time = row['input_start_time']
                         end_time = row['input_end_time']
                         start_idx = np.searchsorted(timestamp_array, start_time, side='left')
                         end_idx = np.searchsorted(timestamp_array, end_time, side='right')
                         
-                        # 检查索引范围
+                        # Check index range
                         if start_idx >= end_idx:
-                            logger.warning(f"无效的时间范围: {start_time} - {end_time}")
+                            logger.warning(f"Invalid time range: {start_time} - {end_time}")
                             continue
                         
-                        # 处理X轴数据
+                        # Process X axis data
                         x_values, x_unit = process_x_axis_data(
                             h5_file, position_path, timestamp_path, 
                             position_mode, absolute_mode, start_idx, end_idx
                         )
                         
-                        # 处理Y轴数据
+                        # Process Y axis data
                         try:
                             y_data = process_y_axis_data(h5_file, data_path, start_idx, end_idx)
                         except KeyError as e:
-                            logger.warning(f"数据路径错误: {data_path}, {str(e)}")
+                            logger.warning(f"Invalid data path: {data_path}, {str(e)}")
                             continue
                         
-                        # 检查数据是否为空
+                        # Check if data is empty
                         if y_data.size == 0 or x_values.size == 0:
-                            logger.warning(f"时间区间 ({start_time}, {end_time}) 内无数据.")
+                            logger.warning(f"No data in time interval ({start_time}, {end_time}).")
                             continue
                         
-                        # 动态创建Y轴
+                        # Dynamically create Y axis
                         ylabel = row['input_ylabel']
                         if ylabel not in y_axes:
                             main_ax.yaxis.set_visible(False)  # 隐藏左侧Y轴刻度
@@ -251,11 +251,11 @@ def process_h5_data(config_file):
                             new_ax.tick_params(axis='y', labelcolor='black')
                             y_axes[ylabel] = new_ax
                         
-                        # 获取当前行的颜色和线型
+                        # Get color and linestyle for current row
                         color = row['input_color'] if not pd.isna(row['input_color']) else None
                         linestyle = row['input_linestyle'] if not pd.isna(row['input_linestyle']) else '-'
                         
-                        # 绘制数据
+                        # Plot data
                         y_axes[ylabel].plot(
                             x_values, 
                             y_data, 
@@ -266,15 +266,15 @@ def process_h5_data(config_file):
                         )
                         
             except (KeyError, OSError) as e:
-                logger.error(f"处理文件 {h5_file_name} 时出错: {str(e)}")
+                logger.error(f"Error processing file {h5_file_name}: {str(e)}")
                 continue
         
-        # 设置X轴标签
+        # Set X axis label
         axis_type = "Position" if position_mode else "Time"
         value_type = "Absolute" if absolute_mode else "Relative"
         main_ax.set_xlabel(f"{value_type} {axis_type} ({x_unit})")
         
-        # 合并图例
+        # Merge legends
         handles, labels = [], []
         h_main, l_main = main_ax.get_legend_handles_labels()
         handles.extend(h_main)
@@ -297,21 +297,21 @@ def process_h5_data(config_file):
         
         plt.tight_layout()
         
-        # 保存图形
-        logger.info("开始保存图形...")
+        # Save figure
+        logger.info("Saving figure...")
         save_filename = get_save_filename()
         
         try:
             plt.savefig(save_filename, dpi=300, bbox_inches='tight')
-            logger.info(f"图形已成功保存为: {save_filename}")
+            logger.info(f"Figure saved successfully as: {save_filename}")
         except Exception as e:
-            logger.error(f"保存图形时出错: {str(e)}")
+            logger.error(f"Error saving figure: {str(e)}")
         
-        # 显示图形
+        # Show figure
         plt.show()
         
     except Exception as e:
-        logger.error(f"处理过程中发生错误: {str(e)}")
+        logger.error(f"Error occurred during processing: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
 
